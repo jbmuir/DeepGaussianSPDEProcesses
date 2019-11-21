@@ -14,8 +14,8 @@ end
     s = sqrt(ld) / m.h^m.d
     dvdσ = L \ (s * w)
     v = σ * dvdσ
-    dvdl = L \ (2 * l * m.D * v + m.d / 2 * s / l * w)
-    return v, Δ -> (nothing, dvdl' * Δ, dvdσ' * Δ, L' \ Δ / s)
+    dvdl = L \ (2 * l * m.D * v / m.h^2 + m.d / 2 * s * σ / l * w)
+    return v, Δ -> (nothing, dvdl' * Δ, dvdσ' * Δ, L' \ Δ * σ * s)
 end
 
 function (m::MaternSPDE)(λ::AbstractVector, σ::Real, w::AbstractVector)
