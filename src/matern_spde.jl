@@ -5,20 +5,41 @@ struct MaternSPDE{T<:Integer,U<:Real,S<:AbstractMatrix}
 end
 
 function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
-    return (I - l^2 * m.D / m.h^2) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
+    return (I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
 end
 
 @adjoint function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
-    L = (I - l^2 * m.D / m.h^2)
+    L = (I - l^2 * m.D)
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
-    dvdσ = L \ (s * w)
-    v = σ * dvdσ
-    dvdl = L \ (2 * l * m.D * v / m.h^2 + m.d / 2 * s * σ / l * w)
-    return v, Δ -> (nothing, dvdl' * Δ, dvdσ' * Δ, L' \ Δ * σ * s)
+    v = L \ (σ * s * w)
+    return v, Δ -> begin
+    					LtΔ = L' \ Δ
+    					sw = s * w
+				    	(nothing, 
+				    	(2 * l * m.D * v + m.d / 2 * σ / l * sw)' * LtΔ, 
+				    	sw' * LtΔ, 
+				     	σ * s * LtΔ)
+				    end
 end
 
-function (m::MaternSPDE)(λ::AbstractVector, σ::Real, w::AbstractVector)
+function (m::MaternSPDE)(l::AbstractVector, σ::Real, w::AbstractVector)
     l = Diagonal(l)
-    return (I - l^2 * m.D / m.h^2) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
+    return (I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
+end
+
+@adjoint function (m::MaternSPDE)(l::AbstractVector, σ::Real, w::AbstractVector)
+	l = Diagonal(l)
+    L = (I - l^2 * m.D)
+    ld = l^m.d
+    s = sqrt(ld) / m.h^m.d
+    v = L \ (σ * s * w)
+    return v, Δ -> begin
+					LtΔ = L' \ Δ
+					sw = s * w
+			    	(nothing, 
+			    	(2 * l * Diagonal(m.D * v) + m.d / 2 * σ * Diagonal(sw) / l) * LtΔ, 
+			    	sw' * LtΔ, 
+			     	σ * s * LtΔ)
+			    end
 end
