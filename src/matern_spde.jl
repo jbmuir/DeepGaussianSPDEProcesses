@@ -2,6 +2,7 @@ struct MaternSPDE{T<:Integer,U<:Real,S<:AbstractMatrix}
     d::T #Dimension of SPDE
     h::U #Discretization length
     D::S #Laplacian Differential Operator
+    N::Int #Number of cells
 end
 
 function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
