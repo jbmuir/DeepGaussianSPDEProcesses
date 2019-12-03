@@ -1,12 +1,22 @@
+function _matern_lhs(l::T, D::S, x::U) where {T<:Real, S<:AbstractMatrix, U<:AbstractVector}
+    return x .- l * l * (D * x)
+end
+
 function spde_cg(m::MaternSPDE, l::Real, σ::Real, w::AbstractVector)
-    L = (I - l^2 * m.D)
+    lhs = let l = l, D = m.D
+        x -> _matern_lhs(l, D, x)
+    end   
+    L = LinearMap(lhs, m.N, issymmetric=true, ishermitian=true, isposdef=true) 
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
     return cg(L, σ * s * w)
 end
 
 @adjoint function spde_cg(m::MaternSPDE, l::Real, σ::Real, w::AbstractVector)
-    L = (I - l^2 * m.D)
+    lhs = let l = l, D = m.D
+        x -> _matern_lhs(l, D, x)
+    end   
+    L = LinearMap(lhs, m.N, issymmetric=true, ishermitian=true, isposdef=true)     
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
     v = cg(L, σ * s * w)
