@@ -7,7 +7,6 @@ using Random
 using Zygote
 using LinearAlgebra
 
-
 @testset "Scalar l tests" begin
     wlen = 501
     Random.seed!(94899109)
