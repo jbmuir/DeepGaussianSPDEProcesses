@@ -1,6 +1,6 @@
 module DeepGaussianSPDEProcesses
 
-using LinearAlgebra: Diagonal, I
+using LinearAlgebra: Diagonal
 using Zygote: @adjoint
 using LinearMaps
 using IterativeSolvers

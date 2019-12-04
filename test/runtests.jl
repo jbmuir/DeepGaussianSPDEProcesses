@@ -17,7 +17,7 @@ using LinearAlgebra
         σ = exp.(randn())
         h = 1.0
         d = 1
-        spde = MaternSPDE(d, h, Tridiagonal(ones(wlen-1), -2*ones(wlen), ones(wlen-1)) / h^2, wlen)
+        spde = MaternSPDE(d, wlen, h, Tridiagonal(ones(wlen-1), -2*ones(wlen), ones(wlen-1)) / h^2, Diagonal(ones(wlen)))
         f(x) = sum(spde(x[1],x[2],x[3:end]))
         g(x) = sum(spde_iter(spde, x[1], x[2], x[3:end]))
         x = [l; σ; w]
@@ -44,7 +44,7 @@ using LinearAlgebra
         σ = exp.(randn())
         h = 1.0
         d = 1
-        spde = MaternSPDE(d, h, Tridiagonal(ones(wlen-1), -2*ones(wlen), ones(wlen-1)) / h^2, wlen)
+        spde = MaternSPDE(d, wlen, h, Tridiagonal(ones(wlen-1), -2*ones(wlen), ones(wlen-1)) / h^2, Diagonal(ones(wlen)))
         f(x) = sum(spde(x[1:wlen],x[wlen+1],x[(wlen+2):end]))
         g(x) = sum(spde_iter(spde, x[1:wlen],x[wlen+1],x[(wlen+2):end]))
         x = [l; σ; w]

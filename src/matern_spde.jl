@@ -1,16 +1,17 @@
-struct MaternSPDE{T<:Integer,U<:Real,S<:AbstractMatrix}
+struct MaternSPDE{T<:Integer, U<:Real, S<:AbstractMatrix, V<:AbstractMatrix}
     d::T #Dimension of SPDE
+    N::Int #Number of cells
     h::U #Discretization length
     D::S #Laplacian Differential Operator
-    N::Int #Number of cells
+    I::V #Appropriate identity matrix on whatever device we are on (note that using uniform scaling operator sucks on the gpu)
 end
 
 function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
-    return (I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
+    return (m.I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
 end
 
 @adjoint function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
-    L = (I - l^2 * m.D)
+    L = (m.I - l^2 * m.D)
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
     v = L \ (σ * s * w)
@@ -26,12 +27,12 @@ end
 
 function (m::MaternSPDE)(l::AbstractVector, σ::Real, w::AbstractVector)
     l = Diagonal(l)
-    return (I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
+    return (m.I - l^2 * m.D) \ (σ * sqrt(l^m.d) * w / m.h^m.d)
 end
 
 @adjoint function (m::MaternSPDE)(l::AbstractVector, σ::Real, w::AbstractVector)
 	l = Diagonal(l)
-    L = (I - l^2 * m.D)
+    L = (m.I - l^2 * m.D)
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
     v = L \ (σ * s * w)
