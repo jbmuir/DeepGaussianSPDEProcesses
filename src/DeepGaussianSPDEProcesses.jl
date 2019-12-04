@@ -5,9 +5,9 @@ using Zygote: @adjoint
 using LinearMaps
 using IterativeSolvers
 
-export MaternSPDE, spde_cg
+export MaternSPDE, spde_iter
 
 include("matern_spde.jl")
-include("matern_spde_cg.jl")
+include("matern_spde_iter.jl")
 
 end
