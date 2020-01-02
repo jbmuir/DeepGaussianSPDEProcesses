@@ -9,13 +9,9 @@ function spde_iter(m::MaternSPDE, l::Real, σ::Real, w::AbstractVector{T}) where
     fwd = let l2 = l2, D = m.D
         x -> _matern_fwd(l2, D, x)
     end   
-    adj = let l2 = l2, D = m.D
-        x -> _matern_adj(l2, D, x)
-    end   
-    L = LinearMap{T}(fwd, adj, m.N) 
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
-    return gmres(L, σ * s * w)
+    return linsolve(fwd, σ * s * w)[1]
 end
 
 @adjoint function spde_iter(m::MaternSPDE, l::Real, σ::Real, w::AbstractVector{T}) where T
@@ -26,12 +22,11 @@ end
     adj = let l2 = l2, D = m.D
         x -> _matern_adj(l2, D, x)
     end   
-    L = LinearMap{T}(fwd, adj, m.N) 
     ld = l^m.d
     s = sqrt(ld) / m.h^m.d
-    v = gmres(L, σ * s * w)
+    v = linsolve(fwd, σ * s * w)[1]
     return v, Δ -> begin
-    					LtΔ = gmres(L', Δ)
+    					LtΔ = linsolve(adj, Δ)[1]
     					sw = s * w
 				    	(nothing, 
 				    	(2 * l * m.D * v + m.d / 2 * σ / l * sw)' * LtΔ, 
@@ -52,14 +47,10 @@ function spde_iter(m::MaternSPDE, l::AbstractVector{T}, σ::Real, w::AbstractVec
     l2 = l.*l
     fwd = let l2 = l2, D = m.D
         x -> _matern_fwd(l2, D, x)
-    end   
-    adj = let l2 = l2, D = m.D
-        x -> _matern_adj(l2, D, x)
-    end    
-    L = LinearMap{T}(fwd, adj, m.N) 
+    end     
     ld = l.^m.d
     s = sqrt.(ld) / m.h^m.d
-    return gmres(L, σ * s .* w)
+    return linsolve(fwd, σ * s .* w)[1]
 end
 
 @adjoint function spde_iter(m::MaternSPDE, l::AbstractVector{T}, σ::Real, w::AbstractVector{T}) where T
@@ -70,13 +61,12 @@ end
     adj = let l2 = l2, D = m.D
         x -> _matern_adj(l2, D, x)
     end    
-    L = LinearMap{T}(fwd, adj, m.N) 
     ld = l.^m.d
     s = sqrt.(ld) / m.h^m.d
     sw = s .* w
-    v = gmres(L, σ * sw)
+    v = linsolve(fwd, σ * sw)[1]
     return v, Δ -> begin
-					LtΔ = gmres(L', Δ)
+					LtΔ = linsolve(adj, Δ)[1]
 			    	(nothing, 
 			    	((2 * l .* (m.D * v)) + m.d / 2 * σ * (sw ./ l)) .* LtΔ, 
 			    	sw' * LtΔ, 

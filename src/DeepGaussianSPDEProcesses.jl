@@ -2,8 +2,7 @@ module DeepGaussianSPDEProcesses
 
 using LinearAlgebra: Diagonal
 using Zygote: @adjoint
-using LinearMaps
-using IterativeSolvers
+using KrylovKit
 
 export MaternSPDE, spde_iter
 
