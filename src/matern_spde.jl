@@ -1,9 +1,9 @@
-struct MaternSPDE{T<:Integer, U<:Real, S<:AbstractMatrix, V<:AbstractMatrix}
-    d::T #Dimension of SPDE
+struct MaternSPDE{T<:Real, S<:AbstractMatrix, U<:AbstractMatrix}
+    d::Int #Dimension of SPDE
     N::Int #Number of cells
-    h::U #Discretization length
+    h::T #Discretization length
     D::S #Laplacian Differential Operator
-    I::V #Appropriate identity matrix on whatever device we are on (note that using uniform scaling operator sucks on the gpu)
+    I::U #Appropriate identity matrix on whatever device we are on (note that using uniform scaling operator sucks on the gpu)
 end
 
 function (m::MaternSPDE)(l::Real, σ::Real, w::AbstractVector)
