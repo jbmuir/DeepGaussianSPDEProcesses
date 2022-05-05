@@ -1,6 +1,6 @@
 name = "DeepGaussianSPDEProcesses"
 uuid = "7336226e-4303-4ac4-b7ea-9f8be3fa382d"
-authors = ["Jack Muir <jmuir@caltech.edu>"]
+authors = ["Jack Muir <jack.muir@earth.ox.ac.uk>"]
 version = "0.1.0"
 
 [deps]
